@@ -6,6 +6,7 @@
 	ProjectGUID="{C28CE26E-34BB-498A-B42E-C95004E83267}"
 	RootNamespace="ldpcEncoder"
 	Keyword="Win32Proj"
+	AssemblyReferenceSearchPaths="&quot;c:\Program Files\MATLAB\R2010b\extern\include&quot;"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -176,6 +177,10 @@
 			</File>
 			<File
 				RelativePath=".\ldpcEncoder.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\c_source\ldpcEncoder_mex.c"
 				>
 			</File>
 			<File
