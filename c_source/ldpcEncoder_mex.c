@@ -13,7 +13,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	if (mxIsComplex(plhs[0]))
 		 mexErrMsgTxt("Output arguments should not be complex");
 	if (mxIsComplex(prhs[0]))
-		 mexErrMsgTxt("Output arguments should not be complex");
+		 mexErrMsgTxt("Input arguments should not be complex");
 
-	
+	EncodeInfoWord(mxGetPr(prhs[0]),mxGetPr(plhs[0]), matrixH);	
 }
