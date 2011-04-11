@@ -25,18 +25,18 @@ void DetMaxNewMatrixDim(short* macroMatrix, int* maxM, int* maxN)
 	}
 }
 
-void DecodeCodeWordBP(float *inCodeWord, float *outCodeWord, short* binaryMatrixH, short* macroMatrix, float SNR)
+void DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatrixH, short* macroMatrix, double SNR)
 {
-	float *lamb			= (float *)malloc(BINARY_MATRIX_N_SIZE*sizeof(float));
-	float *lambPrevIt	= (float *)malloc(BINARY_MATRIX_N_SIZE*sizeof(float));
-	float *Umn			= (float *)malloc(BINARY_MATRIX_M_SIZE*BINARY_MATRIX_N_SIZE*sizeof(float));
-	float *UmnPrevIt	= (float *)malloc(BINARY_MATRIX_M_SIZE*BINARY_MATRIX_N_SIZE*sizeof(float));
+	double *lamb		= (double *)malloc(BINARY_MATRIX_N_SIZE*sizeof(double));
+	double *lambPrevIt	= (double *)malloc(BINARY_MATRIX_N_SIZE*sizeof(double));
+	double *Umn			= (double *)malloc(BINARY_MATRIX_M_SIZE*BINARY_MATRIX_N_SIZE*sizeof(double));
+	double *UmnPrevIt	= (double *)malloc(BINARY_MATRIX_M_SIZE*BINARY_MATRIX_N_SIZE*sizeof(double));
 	short *newBinaryMatrixHm = NULL;
 	short *newBinaryMatrixHn = NULL;
 	int newMSize = 0;	
 	int newNSize = 0;	
 	int i,j,m,n,k, iterL;
-	float	Ul;
+	double	Ul;
 	//FILE *f = fopen("logM.txt","w");
 
 	DetMaxNewMatrixDim(macroMatrix,&newMSize,&newNSize);

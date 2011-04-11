@@ -1,8 +1,6 @@
-#include "mex.h"
-//#include "ldpcEncoder.h"
+#include <mex.h>
+#include "ldpcEncoder.h"
 #include "ldpcMatrixH.h"
-#include <math.h>
-#include <stdio.h>
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
@@ -13,9 +11,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     int i;
     
 	if (nrhs != 1)
-		 mexErrMsgTxt("One input arguments are required");
+		 mexErrMsgTxt("One input argument is required");
 	if (nlhs != 1)
-		 mexErrMsgTxt("One output arguments are required");
+		 mexErrMsgTxt("One output argument is required");
     
     matrixH  = (short *)mxCalloc(BINARY_MATRIX_N_SIZE*BINARY_MATRIX_M_SIZE,sizeof(short));
     codeWord = (short *)mxCalloc(CODE_WORD_LEN,sizeof(short));
