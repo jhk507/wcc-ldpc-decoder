@@ -9,15 +9,15 @@ int main()
 	short *codeWord = (short *)malloc(CODE_WORD_LEN*sizeof(short));
 	FILE *outFile = fopen("outBinMatrix.txt","w");
 	int i;
-	float codeWordFromChanel[CODE_WORD_LEN] = {0};
-	float codeWordFromDecoder[CODE_WORD_LEN] = {0};
+	double codeWordFromChanel[CODE_WORD_LEN] = {0};
+	double codeWordFromDecoder[CODE_WORD_LEN] = {0};
 
 	for(i = 0;i<INFO_WORD_LEN;i++) *(infoWord + i) = ((i%41) == 0);
 
 	CreateBinaryMatrix(&macroMatrixH[0][0],binaryMatrixH);
 	EncodeInfoWord(infoWord,codeWord,binaryMatrixH);
 
-	DecodeCodeWordBP(codeWordFromChanel,codeWordFromDecoder,binaryMatrixH,&macroMatrixH[0][0]);
+	DecodeCodeWordBP(codeWordFromChanel,codeWordFromDecoder,binaryMatrixH,&macroMatrixH[0][0],0.1);
 	
 	PrintMatrixToFile(codeWord,1,CODE_WORD_LEN,outFile);
 	fclose(outFile);

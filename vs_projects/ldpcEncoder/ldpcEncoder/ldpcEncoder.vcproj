@@ -42,6 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\MATLAB\R2010b\extern\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,7 +62,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="libmex.lib"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="C:\Program Files\MATLAB\R2010b\extern\lib\win32\microsoft"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -173,6 +176,10 @@
 			>
 			<File
 				RelativePath=".\ldpcDecoderBP.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\c_source\ldpcDecoderBP_mex.c"
 				>
 			</File>
 			<File

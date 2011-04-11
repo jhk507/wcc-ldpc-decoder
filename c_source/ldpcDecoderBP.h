@@ -4,6 +4,6 @@
 #include "ldpcMatrixConstructor.h"
 #include <math.h>
 
-void DecodeCodeWordBP(float *inCodeWord, float *outCodeWord, short* binaryMatrixH, short* macroMatrix);
+void DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatrixH, short* macroMatrix, double SNR);
 
 #endif /*__LDPC_DECODER_BP_H__*/
