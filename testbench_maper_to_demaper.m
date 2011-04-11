@@ -35,7 +35,7 @@ count_data_in = 2^(numBitPerSymb) - 1;
 % end
 
  cons = mapper(t_modul_type,codeW);
- llr  = demapper(t_modul_type,cons,var)
+ llr  = demapper(t_modul_type,cons,var);
  
  dataFromDemaperToDecoder = reshape(llr>0,1,[]);
      
