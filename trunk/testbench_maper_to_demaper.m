@@ -3,8 +3,8 @@ clear
 clc
 
 % Config params
-t_modul_type    = 2;
-var             = 0.1;
+t_modul_type    = 1;
+var             = 1;
 infoWordLen     = 336;
 
 if (t_modul_type == 0)
@@ -16,9 +16,9 @@ end
 count = 0;
 count_data_in = 2^(numBitPerSymb) - 1;
 
-infoW = unidrnd(1,1,infoWordLen);
-codeW = ldpcEncoder(infoW);
-
+ infoW = round(rand(1,infoWordLen));
+ codeW = ldpcEncoder(infoW);
+ 
 
 % for k = 0:count_data_in
 % switch(t_modul_type)
@@ -34,8 +34,13 @@ codeW = ldpcEncoder(infoW);
 %         error('unknown modulation format');
 % end
 
-% cons = mapper(t_modul_type,t_in_data);
-% llr  = demapper(t_modul_type,cons,var);
+ cons = mapper(t_modul_type,codeW)
+ llr  = demapper(t_modul_type,cons,var)
+ 
+ dataFromDemaperToDecoder = reshape(llr>0,1,[]);
+     
+ 
+ 
 % for m = 1:numBitPerSymb
 %     t_out_data(m,:) = (llr(m) > 0);
 % end
