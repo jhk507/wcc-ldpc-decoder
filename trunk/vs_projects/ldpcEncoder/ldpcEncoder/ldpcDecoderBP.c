@@ -25,7 +25,26 @@ void DetMaxNewMatrixDim(short* macroMatrix, int* maxM, int* maxN)
 	}
 }
 
-void DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatrixH, short* macroMatrix, double SNR)
+int CheckCodeSindrom(short* codeWord, short* matrixHn, short matrixNSize)
+{
+	int i,j;
+	short sind;
+	for(i = 0; i< BINARY_MATRIX_M_SIZE; i++)
+	{
+		j = 0;
+		sind = 0;
+		while(*(matrixHn+ i*matrixNSize + j) != -1)
+		{
+			sind = (sind + *(codeWord + *(matrixHn+ i*matrixNSize + j)))%2;
+			j++;
+		}
+		if (sind)
+			return -1;
+	}
+	return 0;	
+}
+
+int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatrixH, short* macroMatrix, double SNR, short minSumApprox)
 {
 	double *lamb		= (double *)malloc(BINARY_MATRIX_N_SIZE*sizeof(double));
 	double *lambPrevIt	= (double *)malloc(BINARY_MATRIX_N_SIZE*sizeof(double));
@@ -35,9 +54,9 @@ void DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatr
 	short *newBinaryMatrixHn = NULL;
 	int newMSize = 0;	
 	int newNSize = 0;	
-	int i,j,m,n,k, iterL;
+	int i,j,m,n,k;
+	int	iterL, checkRes;
 	double	Ul;
-	//FILE *f = fopen("logM.txt","w");
 
 	DetMaxNewMatrixDim(macroMatrix,&newMSize,&newNSize);
 	newMSize++;
@@ -71,7 +90,7 @@ void DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatr
 	//initialization
 	for (i = 0;i<BINARY_MATRIX_N_SIZE;i++)
 	{
-		*(lamb + i) = (2/SNR) * *(inCodeWord + i);
+		*(lamb + i) = *(inCodeWord + i);
 		*(lambPrevIt + i) = 0;
 		for(j = 0;j<BINARY_MATRIX_M_SIZE;j++)
 		{
@@ -90,7 +109,7 @@ void DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatr
 		m = *(newBinaryMatrixHm + n);
 		i = 0;
 		*(lambPrevIt + n) = *(lamb + n);
-		*(lamb + n) = (2/SNR) * *(inCodeWord + n);
+		*(lamb + n) = *(inCodeWord + n);
 
 		while(m >= 0)
 		{
@@ -106,7 +125,7 @@ void DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatr
 				k++;
 				j = *(newBinaryMatrixHn + newNSize*m + k);
 			}
-			Ul = -2*pow(tanh(Ul),-1);
+			Ul = -2*ATANH(Ul);
 			*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + n) = *(Umn + m*BINARY_MATRIX_N_SIZE + n);
 			*(Umn + m*BINARY_MATRIX_N_SIZE + n) = Ul;
 			*(lamb + n) = *(lamb + n) + Ul;
@@ -115,14 +134,14 @@ void DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatr
 		}
 	}
 
-	/*calculate and check Sindrom 
-	{.. code should be here..}
-	*/
+	checkRes = CheckCodeSindrom(inCodeWord,newBinaryMatrixHn,newNSize);
+	if (checkRes == 0)
+		break;
 
 	iterL++;
 	}
-
-	for (i = 0; i<BINARY_MATRIX_N_SIZE; i++)
+	
+	for (i = 0; i<INFO_WORD_LEN; i++)
 		*(outCodeWord + i) = *(lamb + i);
 
 	free(lamb);
@@ -131,4 +150,9 @@ void DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatr
 	free(UmnPrevIt);
 	free(newBinaryMatrixHm);
 	free(newBinaryMatrixHn);
+
+	if (checkRes == 0)
+		return 0;
+	else
+		return -1;
 }

@@ -38,6 +38,7 @@ count_data_in = 2^(numBitPerSymb) - 1;
  llr  = demapper(t_modul_type,cons,var);
  
  dataFromDemaperToDecoder = reshape(llr>0,1,[]);
+%  sum(dataFromDemaperToDecoder == codeW)
      
  
  

@@ -19,10 +19,10 @@ switch(modul_type)
     case  0, %BPSK
         LLR = real(in_data)*(2./var);
     case  1, %QPSK
-        symb = real(in_data.*exp(1j.*pi./4).*sqrt(2));
+        symb = real(in_data.*sqrt(2));
         LLR(1,:) = symb.*(2./(2.*var));
         
-        symb = imag(in_data.*exp(1j.*pi./4).*sqrt(2));
+        symb = imag(in_data.*sqrt(2));
         LLR(2,:) = symb.*(2./(2.*var));
     case 2, %16-QAM
         symb = real(in_data.*sqrt(10));

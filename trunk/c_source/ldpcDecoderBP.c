@@ -71,7 +71,7 @@ void DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatr
 	//initialization
 	for (i = 0;i<BINARY_MATRIX_N_SIZE;i++)
 	{
-		*(lamb + i) = (2/SNR) * *(inCodeWord + i);
+		*(lamb + i) =  *(inCodeWord + i); /// place start LLR
 		*(lambPrevIt + i) = 0;
 		for(j = 0;j<BINARY_MATRIX_M_SIZE;j++)
 		{
@@ -90,7 +90,7 @@ void DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatr
 		m = *(newBinaryMatrixHm + n);
 		i = 0;
 		*(lambPrevIt + n) = *(lamb + n);
-		*(lamb + n) = (2/SNR) * *(inCodeWord + n);
+		*(lamb + n) = *(inCodeWord + n); // place LLR for current modulation type.!!!!!
 
 		while(m >= 0)
 		{
@@ -106,7 +106,7 @@ void DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatr
 				k++;
 				j = *(newBinaryMatrixHn + newNSize*m + k);
 			}
-			Ul = -2*pow(tanh(Ul),-1);
+			Ul = -2*pow(tanh(Ul),-1); /// must be atan function !!!!!!!!!!
 			*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + n) = *(Umn + m*BINARY_MATRIX_N_SIZE + n);
 			*(Umn + m*BINARY_MATRIX_N_SIZE + n) = Ul;
 			*(lamb + n) = *(lamb + n) + Ul;

@@ -7,5 +7,5 @@ if ~isreal(infoWord)
     error('infoWord must be a real array');
 end
 
-CodeWord = reshape( ldpcEncoder_mex(infoWord) ,1,[]);
+CodeWord = ldpcEncoder_mex(infoWord);
 end

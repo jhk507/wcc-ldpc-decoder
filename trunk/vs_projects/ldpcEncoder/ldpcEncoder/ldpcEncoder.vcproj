@@ -179,15 +179,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\c_source\ldpcDecoderBP_mex.c"
-				>
-			</File>
-			<File
 				RelativePath=".\ldpcEncoder.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\c_source\ldpcEncoder_mex.c"
 				>
 			</File>
 			<File
