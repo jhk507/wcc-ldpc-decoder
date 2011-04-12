@@ -24,7 +24,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         infoWord[i] = (short)*(mxGetPr(prhs[0])+ i);
     
     EncodeInfoWord(infoWord,codeWord, matrixH);	
-    plhs[0] = mxCreateDoubleMatrix(CODE_WORD_LEN, 1, mxREAL);
+    plhs[0] = mxCreateDoubleMatrix(1, CODE_WORD_LEN, mxREAL);
     for (i = 0; i< CODE_WORD_LEN; i++)
          *(mxGetPr(plhs[0]) + i) = (double)codeWord[i];
     

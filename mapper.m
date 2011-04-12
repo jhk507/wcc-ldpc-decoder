@@ -34,10 +34,10 @@ switch (modul_type)
     case 1,
         map_data = (1./sqrt(2)).*((2.*in_data(1,:) - 1.) + 1j*(2.*in_data(2,:) - 1.));
     case 2,
-        map_data = (1./sqrt(10)).*((-1. + 2.*in_data(1,:))*(3.-2.*in_data(2,:)) +  1j*(-1. + 2.*in_data(3,:))*(3.-2.*in_data(4,:)));
+        map_data = (1./sqrt(10)).*((-1. + 2.*in_data(1,:)).*(3.-2.*in_data(2,:)) +  1j*(-1. + 2.*in_data(3,:)).*(3.-2.*in_data(4,:)));
     case 3,
-        map_data = (1./sqrt(42)).*((-1. + 2.*in_data(1,:))*(7. - 6.*in_data(2,:) - 2.*((-1)^in_data(2,:))*in_data(3,:))...
-                    + 1j*(-1. + 2.*in_data(4,:))*(7. - 6.*in_data(5,:) - 2.*((-1)^in_data(5,:))*in_data(6,:)) );
+        map_data = (1./sqrt(42)).*((-1. + 2.*in_data(1,:)).*(7. - 6.*in_data(2,:) - 2.*((-1).^in_data(2,:)).*in_data(3,:))...
+                    + 1j*(-1. + 2.*in_data(4,:)).*(7. - 6.*in_data(5,:) - 2.*((-1).^in_data(5,:)).*in_data(6,:)) );
 end
 
 end
