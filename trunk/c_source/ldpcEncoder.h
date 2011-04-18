@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "ldpcMatrixConstructor.h"
 
+int CheckCodeWord(short *codeWord, short *MatrixH);
 void EncodeInfoWord(short *inInfoWord, short *outCodeWord, short *MatrixH);
 
 #endif /*__LDPC_ENCODER_H__*/

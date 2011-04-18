@@ -4,7 +4,7 @@ clc
 
 % Config params
 t_modul_type    = 1;
-var             = 1;
+var             = 10;
 infoWordLen     = 336;
 
 if (t_modul_type == 0)
@@ -36,9 +36,16 @@ count_data_in = 2^(numBitPerSymb) - 1;
 
  cons = mapper(t_modul_type,codeW);
  llr  = demapper(t_modul_type,cons,var);
+ data = ldpcDecoder(llr,var);
  
- dataFromDemaperToDecoder = reshape(llr>0,1,[]);
-%  sum(dataFromDemaperToDecoder == codeW)
+ out_llr = reshape(llr,[],1);
+ 
+ fid = fopen('llr.txt','w');
+ fprintf(fid,'%f\n',llr);
+ fclose(fid);
+ 
+  dataFromDecoder = reshape(data>0,1,[]);
+  sum(dataFromDecoder == codeW)
      
  
  
