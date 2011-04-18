@@ -6,7 +6,7 @@ clc
 t_modul_type    = 2;
 var             = 0.2;
 infoWordLen     = 336;
-frameLen        = 10;
+frameLen        = 100;
 minSumAppr      = 0;
 
 if (t_modul_type == 0)
