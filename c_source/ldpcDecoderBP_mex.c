@@ -10,7 +10,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	double* codeWord;
     double* infoWord;
 	double var;
-	int i;
+	int i, res;
 
 	if (nrhs != 2)
 		 mexErrMsgTxt("Two input arguments are required");
@@ -19,18 +19,24 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	matrixH  = (short *)mxCalloc(BINARY_MATRIX_N_SIZE*BINARY_MATRIX_M_SIZE,sizeof(short));
     codeWord = (double *)mxCalloc(CODE_WORD_LEN,sizeof(double));
-    infoWord = (double *)mxCalloc(INFO_WORD_LEN,sizeof(double));
+    infoWord = (double *)mxCalloc(CODE_WORD_LEN,sizeof(double));
 	CreateBinaryMatrix(&macroMatrixH[0][0],matrixH);
 
 	for(i = 0;i<CODE_WORD_LEN;i++)
+    {
         codeWord[i] = (double)*(mxGetPr(prhs[0])+ i);
+    }
 	var = (double)*(mxGetPr(prhs[1]));
-	
-	DecodeCodeWordBP(codeWord,infoWord,matrixH,macroMatrixH,var);
 
-	plhs[0] = mxCreateDoubleMatrix(INFO_WORD_LEN, 1, mxREAL);
-	for (i = 0; i< INFO_WORD_LEN; i++)
+	
+	res = DecodeCodeWordBP(codeWord,infoWord,matrixH,&macroMatrixH[0][0],var,0);
+    printf("%d\n",res);
+
+	plhs[0] = mxCreateDoubleMatrix(1, CODE_WORD_LEN, mxREAL);
+	for (i = 0; i< CODE_WORD_LEN; i++)
+    {
          *(mxGetPr(plhs[0]) + i) = (double)infoWord[i];
+    }
 	
 	mxFree(matrixH);
     mxFree(codeWord);    

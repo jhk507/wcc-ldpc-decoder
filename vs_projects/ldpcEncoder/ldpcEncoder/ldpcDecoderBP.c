@@ -35,7 +35,7 @@ int CheckCodeSindrom(short* codeWord, short* matrixHn, short matrixNSize)
 		sind = 0;
 		while(*(matrixHn+ i*matrixNSize + j) != -1)
 		{
-			sind = (sind + *(codeWord + *(matrixHn+ i*matrixNSize + j)))%2;
+			sind = (sind + *(codeWord + *(matrixHn+ i*matrixNSize + j) ))%2;
 			j++;
 		}
 		if (sind)
@@ -115,17 +115,30 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 		{
 			j = *(newBinaryMatrixHn + newNSize*m);
 			k = 0;
-			Ul = 1;
+
+			if (minSumApprox)
+				Ul = (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) + *(lambPrevIt + j))/2;
+			else
+				Ul = 1;
 			while (j >= 0)
 			{
 				if (j != n)
 					{
-						Ul = Ul*tanh( (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) + *(lambPrevIt + j))/2 );
+						if(minSumApprox)
+						{
+							if(abs(Ul) > abs( (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j))/2 )  )
+								Ul = (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j))/2;
+						}
+						else
+							Ul = Ul*tanh( (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j))/2 );
 					}
 				k++;
 				j = *(newBinaryMatrixHn + newNSize*m + k);
 			}
-			Ul = -2*ATANH(Ul);
+			if (minSumApprox)
+				Ul = Ul; //????? How should I calculate -(-1)^Phi(C)
+			else
+				Ul = -2.*ATANH(Ul);
 			*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + n) = *(Umn + m*BINARY_MATRIX_N_SIZE + n);
 			*(Umn + m*BINARY_MATRIX_N_SIZE + n) = Ul;
 			*(lamb + n) = *(lamb + n) + Ul;
@@ -134,14 +147,14 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 		}
 	}
 
-	checkRes = CheckCodeSindrom(inCodeWord,newBinaryMatrixHn,newNSize);
+	checkRes = CheckCodeSindrom(lamb,newBinaryMatrixHn,newNSize);
 	if (checkRes == 0)
 		break;
 
 	iterL++;
 	}
 	
-	for (i = 0; i<INFO_WORD_LEN; i++)
+	for (i = 0; i<CODE_WORD_LEN; i++)
 		*(outCodeWord + i) = *(lamb + i);
 
 	free(lamb);
@@ -155,4 +168,11 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 		return 0;
 	else
 		return -1;
+}
+
+void HardDecisionCodeWord(double *llrWord, short *codeWord)
+{
+	int i;
+	for (i = 0; i<CODE_WORD_LEN; i++)
+		*(codeWord + i) = (*(llrWord + i) > 0 );
 }
