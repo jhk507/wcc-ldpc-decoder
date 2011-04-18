@@ -3,9 +3,11 @@ clear
 clc
 
 % Config params
-t_modul_type    = 1;
-var             = 10;
+t_modul_type    = 2;
+var             = 0.2;
 infoWordLen     = 336;
+frameLen        = 10;
+minSumAppr      = 0;
 
 if (t_modul_type == 0)
     numBitPerSymb = 1;
@@ -16,27 +18,12 @@ end
 count = 0;
 count_data_in = 2^(numBitPerSymb) - 1;
 
- infoW = round(rand(1,infoWordLen));
- codeW = ldpcEncoder(infoW);
+ infoW = round(rand(1,infoWordLen*frameLen));
+ codeW = ldpcEncoder(infoW,frameLen);
  
-
-% for k = 0:count_data_in
-% switch(t_modul_type)
-%     case 0,
-%         t_in_data = [mod(k,2)]
-%     case 1,
-%         t_in_data = [mod(k,2) mod(fix(k/2),2)]
-%     case 2,
-%         t_in_data = [mod(k,2) mod(fix(k/2),2) mod(fix(k/4),2) mod(fix(k/8),2)]
-%     case 3,
-%         t_in_data = [mod(k,2) mod(fix(k/2),2) mod(fix(k/4),2) mod(fix(k/8),2) mod(fix(k/16),2) mod(fix(k/32),2)]
-%     otherwise
-%         error('unknown modulation format');
-% end
-
  cons = mapper(t_modul_type,codeW);
  llr  = demapper(t_modul_type,cons,var);
- data = ldpcDecoder(llr,var);
+ data = ldpcDecoder(llr,frameLen,var,minSumAppr);
  
  out_llr = reshape(llr,[],1);
  
@@ -44,9 +31,8 @@ count_data_in = 2^(numBitPerSymb) - 1;
  fprintf(fid,'%f\n',llr);
  fclose(fid);
  
-  dataFromDecoder = reshape(data>0,1,[]);
-  sum(dataFromDecoder == codeW)
-     
+ dataFromDecoder = reshape(data>0,1,[]);
+ sum(dataFromDecoder == codeW)     
  
  
 % for m = 1:numBitPerSymb

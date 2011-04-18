@@ -164,10 +164,7 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 	free(newBinaryMatrixHm);
 	free(newBinaryMatrixHn);
 
-	if (checkRes == 0)
-		return 0;
-	else
-		return -1;
+	return checkRes;
 }
 
 void HardDecisionCodeWord(double *llrWord, short *codeWord)
