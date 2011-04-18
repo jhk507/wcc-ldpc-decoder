@@ -27,7 +27,7 @@ int main()
 		fscanf(dataToDecoderFile,"%lf",llrFromDemapper+i);
 
 	fclose(dataToDecoderFile);
-	resDec = DecodeCodeWordBP(llrFromDemapper,llrFromDecoder,binaryMatrixH,&macroMatrixH[0][0],0.1,0);
+	resDec = DecodeCodeWordBP(llrFromDemapper,llrFromDecoder,binaryMatrixH,&macroMatrixH[0][0],10,0);
 	HardDecisionCodeWord(llrFromDecoder,codeWord);
 	
 	PrintMatrixToFile(codeWord,1,CODE_WORD_LEN,outFile);

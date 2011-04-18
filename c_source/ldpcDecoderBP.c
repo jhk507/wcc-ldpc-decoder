@@ -117,7 +117,7 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 			k = 0;
 
 			if (minSumApprox)
-				Ul = (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) + *(lambPrevIt + j))/2;
+				Ul = (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j))/2;
 			else
 				Ul = 1;
 			while (j >= 0)
@@ -153,6 +153,7 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 
 	iterL++;
 	}
+    printf("%d\t",checkRes);
 	
 	for (i = 0; i<CODE_WORD_LEN; i++)
 		*(outCodeWord + i) = *(lamb + i);
@@ -162,12 +163,10 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 	free(Umn);
 	free(UmnPrevIt);
 	free(newBinaryMatrixHm);
-	free(newBinaryMatrixHn);
+	free(newBinaryMatrixHn);  
 
-	if (checkRes == 0)
-		return 0;
-	else
-		return -1;
+
+    return checkRes;
 }
 
 void HardDecisionCodeWord(double *llrWord, short *codeWord)
