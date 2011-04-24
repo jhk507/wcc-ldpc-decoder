@@ -1,6 +1,7 @@
 #include <mex.h>
 #include "ldpcDecoderBP.h"
 #include "ldpcMatrixH.h"
+#include "matrix.h"
 
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -9,17 +10,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     short  macroMatrixH[MACRO_MATRIX_M_SIZE][MACRO_MATRIX_N_SIZE] = MACRO_MATRIX;
 	double* codeFrame;
     double* infoFrame;
-	double var = (double)*(mxGetPr(prhs[2]));
-    short minSumAppr = (short)*(mxGetPr(prhs[3]));
-    int frameLen = (int)*(mxGetPr(prhs[1]));
+	double var;
+    short minSumAppr;
+    int frameLen;
 	int i, res;
+    int iterCount;
     
 
-	if (nrhs != 4)
+	if (nrhs != 3)
 		 mexErrMsgTxt("Four input arguments are required");
-	if (nlhs != 1)
-		 mexErrMsgTxt("One output argument is required");
+	if (nlhs < 1)
+		 mexErrMsgTxt("One or Two output arguments are required");
 
+    frameLen = (int)(mxGetScalar(prhs[1]));
+    minSumAppr = (short)(mxGetScalar(prhs[2]));
+    
 	matrixH  = (short *)mxCalloc(BINARY_MATRIX_N_SIZE*BINARY_MATRIX_M_SIZE,sizeof(short));
     codeFrame = (double *)mxCalloc(CODE_WORD_LEN * frameLen,sizeof(double));
     infoFrame = (double *)mxCalloc(CODE_WORD_LEN * frameLen,sizeof(double));
@@ -32,7 +37,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     
 	for (i = 0; i<frameLen; i++)
     {
-        res = DecodeCodeWordBP(codeFrame + i*CODE_WORD_LEN,infoFrame + i*CODE_WORD_LEN,matrixH,&macroMatrixH[0][0],var,minSumAppr);
+        res = DecodeCodeWordBP(codeFrame + i*CODE_WORD_LEN,infoFrame + i*CODE_WORD_LEN,matrixH,&macroMatrixH[0][0],&iterCount,minSumAppr);
         printf("%d\t",res);
     }
     printf("\n");    
@@ -42,6 +47,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     {
          *(mxGetPr(plhs[0]) + i) = (double)infoFrame[i];
     }
+    plhs[1] = mxCreateDoubleMatrix(1, 1, mxREAL);
+    *(mxGetPr(plhs[1])) = iterCount;
 	
 	mxFree(matrixH);
     mxFree(codeFrame);    

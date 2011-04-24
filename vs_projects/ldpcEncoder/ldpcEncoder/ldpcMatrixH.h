@@ -11,7 +11,7 @@
 #define CODE_WORD_LEN 	 672 
 #define INFO_WORD_LEN 	 CODE_WORD_LEN*CODE_RATE
 
-#define L_MAX	10
+#define L_MAX	20
 
 #define MACRO_MATRIX {{40, -1, 38, -1, 13, -1,  5, -1, 18, -1, -1, -1, -1, -1, -1, -1}, \
 					  {34, -1, 35, -1, 27, -1, -1, 30,  2,  1, -1, -1, -1, -1, -1, -1}, \
