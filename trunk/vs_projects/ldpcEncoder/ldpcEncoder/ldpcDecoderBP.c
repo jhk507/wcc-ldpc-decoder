@@ -54,9 +54,11 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 	short *newBinaryMatrixHn = NULL;
 	int newMSize = 0;	
 	int newNSize = 0;	
-	int i,j,m,n,k,signUl;
+	int i,j,m,n,k,signUl,iii;
 	int	iterL, checkRes;
 	double	Ul;
+//	FILE *fHm = fopen("matrixHm.txt","w");
+//	FILE *fHn = fopen("matrixHn.txt","w");
 
 	DetMaxNewMatrixDim(macroMatrix,&newMSize,&newNSize);
 	newMSize++;
@@ -75,6 +77,10 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 			}
 		*(newBinaryMatrixHn + i*newNSize + n) = -1;
 	}
+	
+//	PrintMatrixToFile(newBinaryMatrixHn,BINARY_MATRIX_M_SIZE,newNSize,fHn);
+//	fclose(fHn);
+
 	for (j = 0; j<BINARY_MATRIX_N_SIZE;j++)
 	{
 		m = 0;
@@ -86,17 +92,20 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 			}
 		*(newBinaryMatrixHm + m*BINARY_MATRIX_N_SIZE + j) = -1;
 	}
-	
+//	PrintMatrixToFile(newBinaryMatrixHm,newMSize,BINARY_MATRIX_N_SIZE,fHm);
+//	fclose(fHm);	
+
 	//initialization
 	for (i = 0;i<BINARY_MATRIX_N_SIZE;i++)
 	{
-		*(lamb + i) = *(inCodeWord + i);
-		*(lambPrevIt + i) = 0.;
+ 		*(lamb + i) = 0;
+		*(lambPrevIt + i) = *(inCodeWord + i);
 		for(j = 0;j<BINARY_MATRIX_M_SIZE;j++)
-		{
-		*(Umn + j*BINARY_MATRIX_N_SIZE + i) = 0.;
-		*(UmnPrevIt + j*BINARY_MATRIX_N_SIZE + i) = 0.;
-		}
+			//if (*(binaryMatrixH + j*BINARY_MATRIX_N_SIZE + i))
+			{
+				*(Umn + j*BINARY_MATRIX_N_SIZE + i) = 0;
+				*(UmnPrevIt + j*BINARY_MATRIX_N_SIZE + i) = 0;
+			}
 	}
 
 	//iterate
@@ -108,7 +117,6 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 	{
 		m = *(newBinaryMatrixHm + n);
 		i = 0;
-		*(lambPrevIt + n) = *(lamb + n);
 		*(lamb + n) = *(inCodeWord + n);
 
 		while(m >= 0)
@@ -122,7 +130,7 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 				signUl = 0;
 			}
 			else
-				Ul = 1.;
+				Ul = 1.0;
 			while (j >= 0)
 			{
 				if (j != n)
@@ -131,41 +139,43 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 						{
 							if ((*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j))/2 > 0 )
 								signUl++;
-							if(fabs(Ul) > fabs( (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j))/2 )  )
-								Ul = fabs((*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j))/2);
+							if(fabs(Ul) > fabs ( (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j) )/2 ) )
+								Ul = fabs( (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j) )/2 );
 						}
 						else
-							Ul = Ul*tanh( (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j))/2 );
+							Ul = Ul*tanh( *(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j)/2 - *(lambPrevIt + j)/2 );
 					}
 				k++;
 				j = *(newBinaryMatrixHn + newNSize*m + k);
-			}
+			}	// while (j >= 0)
 			if (minSumApprox)
-				Ul = (-1.*pow(-1,signUl%2)) * Ul; //????? How should I calculate -(-1)^Phi(C)
+			{
+				if (signUl%2)
+					Ul = -Ul;
+			}
 			else
 			{
-				Ul = -2.*ATANH(Ul);
-				if (_isnan(Ul))
-				{
-					if (Ul>0)
-						Ul = 1000;
-					else
-						Ul = -1000;
-				}
+				Ul = -2*ATANH(Ul);
 			}
-			*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + n) = *(Umn + m*BINARY_MATRIX_N_SIZE + n);
 			*(Umn + m*BINARY_MATRIX_N_SIZE + n) = Ul;
 			*(lamb + n) = *(lamb + n) + Ul;
 			i++;
 			m = *(newBinaryMatrixHm + i*BINARY_MATRIX_N_SIZE + n);
-		}
+		}	//while(m >= 0)
+	}
+
+	for(j = 0; j<BINARY_MATRIX_N_SIZE;j++)
+	{
+		*(lambPrevIt + j) = *(lamb + j);
+		for (i = 0; i<BINARY_MATRIX_M_SIZE;i++)
+			if (*(binaryMatrixH + i*BINARY_MATRIX_N_SIZE + j))
+			*(UmnPrevIt + i*BINARY_MATRIX_N_SIZE + j) = *(Umn + i*BINARY_MATRIX_N_SIZE + j);
 	}
 
 	checkRes = CheckCodeSindrom(lamb,newBinaryMatrixHn,newNSize);
+	iterL++;
 	if (checkRes == 0)
 		break;
-
-	iterL++;
 	}
 	
 	for (i = 0; i<CODE_WORD_LEN; i++)
@@ -186,5 +196,5 @@ void HardDecisionCodeWord(double *llrWord, short *codeWord)
 {
 	int i;
 	for (i = 0; i<CODE_WORD_LEN; i++)
-		*(codeWord + i) = (*(llrWord + i) > 0 );
+		*(codeWord + i) = (short)(*(llrWord + i) > 0 );
 }

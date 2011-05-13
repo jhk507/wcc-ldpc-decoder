@@ -15,11 +15,14 @@ int main()
 	double *llrFromDemapper = (double *)malloc(CODE_WORD_LEN*sizeof(double));
 	double *llrFromDecoder	= (double *)malloc(CODE_WORD_LEN*sizeof(double));
 	int *realCodeWord	= (double *)malloc(CODE_WORD_LEN*sizeof(double));
-	int frameCnt = 20;
+	int frameCnt = 5;
 	double BER = 0;
 
 	CreateBinaryMatrix(&macroMatrixH[0][0],binaryMatrixH);
 	/*EncodeInfoWord(infoWord,codeWord,binaryMatrixH);*/
+	PrintMatrixToFile(binaryMatrixH,BINARY_MATRIX_M_SIZE,BINARY_MATRIX_N_SIZE,outFile);
+	fclose(outFile);
+
 	for (i = 0;i<CODE_WORD_LEN;i++)
 		*(codeWord + i) = 0;
 	checkCW = CheckCodeWord(codeWord,binaryMatrixH);
@@ -38,8 +41,6 @@ int main()
 		resDec = DecodeCodeWordBP(llrFromDemapper,llrFromDecoder,binaryMatrixH,&macroMatrixH[0][0],&itCount,0);
 		HardDecisionCodeWord(llrFromDecoder,codeWord);
 	
-		PrintMatrixToFile(codeWord,1,CODE_WORD_LEN,outFile);
-		fclose(outFile);
 		checkCW = CheckCodeWord(codeWord,binaryMatrixH);
 		printf("checkCW Result: %d\n",checkCW);
 		

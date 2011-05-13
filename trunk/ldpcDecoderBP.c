@@ -98,12 +98,12 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 	//initialization
 	for (i = 0;i<BINARY_MATRIX_N_SIZE;i++)
 	{
-//		*(lamb + i) = *(inCodeWord + i);
+		*(lamb + i) = *(inCodeWord + i);
 		*(lambPrevIt + i) = *(inCodeWord + i);
 		for(j = 0;j<BINARY_MATRIX_M_SIZE;j++)
 			if (*(binaryMatrixH + j*BINARY_MATRIX_N_SIZE + i))
 			{
-//				*(Umn + j*BINARY_MATRIX_N_SIZE + i) = 0;
+				*(Umn + j*BINARY_MATRIX_N_SIZE + i) = 0;
 				*(UmnPrevIt + j*BINARY_MATRIX_N_SIZE + i) = 0;
 			}
 	}
@@ -117,7 +117,7 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 	{
 		m = *(newBinaryMatrixHm + n);
 		i = 0;
-		//*(lambPrevIt + n) = *(lamb + n);
+		*(lambPrevIt + n) = *(lamb + n);
 		*(lamb + n) = *(inCodeWord + n);
 
 		while(m >= 0)
@@ -140,8 +140,8 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 						{
 							if ((*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j))/2 > 0 )
 								signUl++;
-							if(fabs(Ul) > fabs ( (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j) )/2 ) )
-								Ul = fabs( (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j) )/2 );
+							if(fabs(Ul) > fabs( (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j))/2 )  )
+								Ul = fabs( (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j))/2 );
 						}
 						else
 							Ul = Ul*tanh( (*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j) - *(lambPrevIt + j))/2 );
@@ -156,23 +156,22 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 			}
 			else
 			{
-				Ul = -2*ATANH(Ul);
+				Ul = -2.*ATANH(Ul);
+/*				if (_isnan(Ul))
+				{
+					if (Ul>0)
+						Ul = 1000;
+					else
+						Ul = -1000;
+				}*/
 			}
-			//*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + n) = *(Umn + m*BINARY_MATRIX_N_SIZE + n);
+			*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + n) = *(Umn + m*BINARY_MATRIX_N_SIZE + n);
 			*(Umn + m*BINARY_MATRIX_N_SIZE + n) = Ul;
 			*(lamb + n) = *(lamb + n) + Ul;
 			i++;
 			m = *(newBinaryMatrixHm + i*BINARY_MATRIX_N_SIZE + n);
 		}	//while(m >= 0)
 	}
-
-		for (j = 0; j<BINARY_MATRIX_N_SIZE;j++)
-		{
-			*(lambPrevIt + j) = *(lamb + j);
-			for (i = 0; i<BINARY_MATRIX_M_SIZE;i++)
-			  if (*(binaryMatrixH + i*BINARY_MATRIX_N_SIZE + j))
-				*(UmnPrevIt + i*BINARY_MATRIX_N_SIZE + j) = *(Umn + i*BINARY_MATRIX_N_SIZE + j);
-		}
 
 	checkRes = CheckCodeSindrom(lamb,newBinaryMatrixHn,newNSize);
 	iterL++;
