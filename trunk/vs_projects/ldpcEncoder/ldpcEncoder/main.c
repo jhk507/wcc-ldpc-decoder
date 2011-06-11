@@ -20,7 +20,7 @@ int main()
 
 	CreateBinaryMatrix(&macroMatrixH[0][0],binaryMatrixH);
 	/*EncodeInfoWord(infoWord,codeWord,binaryMatrixH);*/
-	PrintMatrixToFile(binaryMatrixH,BINARY_MATRIX_M_SIZE,BINARY_MATRIX_N_SIZE,outFile);
+	PrintMatrixToHFile(binaryMatrixH,BINARY_MATRIX_M_SIZE,BINARY_MATRIX_N_SIZE,outFile);
 	fclose(outFile);
 
 	for (i = 0;i<CODE_WORD_LEN;i++)
@@ -56,7 +56,11 @@ int main()
 		if (!errCnt)
 			printf("Decoding has no errors\n");
 	}
-
+	free(llrFromDecoder);
+	free(llrFromDemapper);
+	free(realCodeWord);
+	free(codeWord);
+	free(infoWord);
 	fclose(dataToDecoderFile);
 	fclose(codeFile);
 

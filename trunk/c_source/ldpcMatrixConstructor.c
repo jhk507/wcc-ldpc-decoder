@@ -86,9 +86,9 @@ void CreateBinaryMatrix(short *inMacroMatrix, short *outBinaryMatrix)
 {
 	short *tmpBinaryMatrix = (short *)malloc(BINARY_MATRIX_M_SIZE*BINARY_MATRIX_N_SIZE*sizeof(short));
 
-	TransformToBinaryMatrix(inMacroMatrix,tmpBinaryMatrix);
-	TransformToTriangularView(tmpBinaryMatrix,inMacroMatrix,outBinaryMatrix);
-	free(tmpBinaryMatrix);
+	TransformToBinaryMatrix(inMacroMatrix,outBinaryMatrix);
+// 	TransformToTriangularView(tmpBinaryMatrix,inMacroMatrix,outBinaryMatrix);
+// 	free(tmpBinaryMatrix);
 }
 
 void PrintMatrix(short *matrix, int rowCount, int colCount)

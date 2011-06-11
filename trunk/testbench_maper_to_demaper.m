@@ -5,7 +5,7 @@ clc
 % Config params
 t_modul_type    = 0;
 frameLen        = 100;
-minSumAppr      = 0;
+minSumAppr      = 1;
 infoWordLen     = 336;
 startSNRdB      = -5;
 stepSizeSNRdB   = 1;
@@ -19,8 +19,38 @@ if coderON
 else
     codeWordLen = infoWordLen;
 end
+%------------------------
 
+% macroMatrixNSize = 16;
+% macroMatrixMSize = 8;
+% elemMatrixSize = 42;
+% elemIdentMatrix = eye(elemMatrixSize);
+% 
+% macroMatrix1_2 = [40, -1, 38, -1, 13, -1,  5, -1, 18, -1, -1, -1, -1, -1, -1, -1;...
+%                   34, -1, 35, -1, 27, -1, -1, 30,  2,  1, -1, -1, -1, -1, -1, -1;...
+%                   -1, 36, -1, 31, -1,  7, -1, 34, -1, 10, 41, -1, -1, -1, -1, -1;...
+%                   -1, 27, -1, 18, -1, 12, 20, -1, -1, -1, 15,  6, -1, -1, -1, -1;...
+%                   35, -1, 41, -1, 40, -1, 39, -1, 28, -1, -1,  3, 28, -1, -1, -1;...
+%                   29, -1,  0, -1, -1, 22, -1,  4, -1, 28, -1, -1, 24, 23, -1, -1;...
+%                   -1, 31, -1, 23, -1, 21, -1, 20, -1, -1, 12, -1, -1,  0, 13, -1;...
+%                   -1, 22, -1, 34, 31, -1, 14, -1, -1, -1, -1, 18, -1, -1, 22, 24];
+%               
+% binaryMatrix = [];
+% tempMatrix = [];
+%               
+% for jj = 1:1:macroMatrixMSize
+%     tempMatrix = [];
+%     for ii = 1:1:macroMatrixNSize
+%       if macroMatrix1_2(jj,ii)> -1
+%       tempMatrix = [tempMatrix, cyclicMatrixOffset(elemIdentMatrix, macroMatrix1_2(jj,ii))];
+%       else
+%       tempMatrix = [tempMatrix, zeros(elemMatrixSize)];
+%       end
+%     end
+%     binaryMatrix = [binaryMatrix; tempMatrix];
+% end
 
+%------------------------
 if (t_modul_type == 0)
     numBitPerSymb = 1;
 else

@@ -4,9 +4,10 @@
 #include "matrix.h"
 
 
+
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-	short* matrixH;
+	short matrixH[BINARY_MATRIX_M_SIZE][BINARY_MATRIX_N_SIZE] = BINARY_H_MATRIX;
     short  macroMatrixH[MACRO_MATRIX_M_SIZE][MACRO_MATRIX_N_SIZE] = MACRO_MATRIX;
 	double* codeFrame;
     double* infoFrame;
@@ -15,9 +16,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     int frameLen;
 	int i, res;
     int iterCount;
-    
+        
 
-	if (nrhs != 3)
+	if (nrhs < 3)
 		 mexErrMsgTxt("Four input arguments are required");
 	if (nlhs < 1)
 		 mexErrMsgTxt("One or Two output arguments are required");
@@ -25,10 +26,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     frameLen = (int)(mxGetScalar(prhs[1]));
     minSumAppr = (short)(mxGetScalar(prhs[2]));
     
-	matrixH  = (short *)mxCalloc(BINARY_MATRIX_N_SIZE*BINARY_MATRIX_M_SIZE,sizeof(short));
+	//matrixH  = (short *)mxCalloc(BINARY_MATRIX_N_SIZE*BINARY_MATRIX_M_SIZE,sizeof(short));
     codeFrame = (double *)mxCalloc(CODE_WORD_LEN * frameLen,sizeof(double));
     infoFrame = (double *)mxCalloc(CODE_WORD_LEN * frameLen,sizeof(double));
-	CreateBinaryMatrix(&macroMatrixH[0][0],matrixH);
+	//CreateBinaryMatrix(&macroMatrixH[0][0],matrixH);
 
 	for(i = 0;i<CODE_WORD_LEN * frameLen;i++)
     {

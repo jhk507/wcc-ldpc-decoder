@@ -7,7 +7,7 @@
 #include <float.h>
 
 
-#define ATANH(z)	(0.5*log((1.+z)/(1.-z)))
+#define ATANH(z)	(log((1+z)/(1-z))/2)
 
 int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatrixH, short* macroMatrix, int* iterCount, short minSumApprox);
 void HardDecisionCodeWord(double *llrWord, short *codeWord);

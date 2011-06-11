@@ -1,7 +1,7 @@
 % Config plot parameters
 x = -4:0.01:4;
 var =1;
-modulType = 3;
+modulType = 2;
 
 %
 y = demapper(modulType, x, var);
