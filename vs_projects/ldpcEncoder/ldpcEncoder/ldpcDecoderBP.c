@@ -110,7 +110,6 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 
 	//iterate
 	iterL = 0;
-
 	while(iterL < L_MAX)
 	{
 	for (n = 0; n<BINARY_MATRIX_N_SIZE; n++)
