@@ -1,24 +1,24 @@
 #include "ldpcDecoderBP.h"
 
-void DetMaxNewMatrixDim(short* macroMatrix, int* maxM, int* maxN)
+void DetMaxNewMatrixDim(short* binMatrix, int* maxM, int* maxN)
 {
 	int i,j;
 	int tmp_val;
 	*maxM = 0;
 	*maxN = 0;
-	for (i = 0; i<MACRO_MATRIX_N_SIZE; i++)
+	for (i = 0; i<BINARY_MATRIX_N_SIZE; i++)
 	{	tmp_val = 0;
-		for (j = 0; j<MACRO_MATRIX_M_SIZE;j++)
-			if(*(macroMatrix + j*MACRO_MATRIX_N_SIZE + i) != -1) 
+		for (j = 0; j<BINARY_MATRIX_M_SIZE;j++)
+			if(*(binMatrix + j*BINARY_MATRIX_N_SIZE + i) == 1) 
 				tmp_val++;
 		if (tmp_val > *maxM)
 			*maxM = tmp_val;
 	}
 
-	for (i = 0; i<MACRO_MATRIX_M_SIZE; i++)
+	for (i = 0; i<BINARY_MATRIX_M_SIZE; i++)
 	{	tmp_val = 0;
-		for (j = 0; j<MACRO_MATRIX_N_SIZE;j++)
-			if(*(macroMatrix + i*MACRO_MATRIX_N_SIZE + j) != -1) 
+		for (j = 0; j<BINARY_MATRIX_N_SIZE;j++)
+			if(*(binMatrix + i*BINARY_MATRIX_N_SIZE + j) == 1) 
 				tmp_val++;
 		if (tmp_val > *maxN)
 			*maxN = tmp_val;
@@ -57,10 +57,10 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 	int i,j,m,n,k,signUl,iii;
 	int	iterL, checkRes;
 	double	Ul;
-//	FILE *fHm = fopen("matrixHm.txt","w");
-//	FILE *fHn = fopen("matrixHn.txt","w");
+	FILE *fHm = fopen("matrixHm.txt","w");
+	FILE *fHn = fopen("matrixHn.txt","w");
 
-	DetMaxNewMatrixDim(macroMatrix,&newMSize,&newNSize);
+	DetMaxNewMatrixDim(binaryMatrixH,&newMSize,&newNSize);
 	newMSize++;
 	newNSize++;
 	newBinaryMatrixHm = (short *)malloc(BINARY_MATRIX_N_SIZE*newMSize*sizeof(short));
@@ -78,8 +78,8 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 		*(newBinaryMatrixHn + i*newNSize + n) = -1;
 	}
 	
-//	PrintMatrixToFile(newBinaryMatrixHn,BINARY_MATRIX_M_SIZE,newNSize,fHn);
-//	fclose(fHn);
+	PrintMatrixToFile(newBinaryMatrixHn,BINARY_MATRIX_M_SIZE,newNSize,fHn);
+	fclose(fHn);
 
 	for (j = 0; j<BINARY_MATRIX_N_SIZE;j++)
 	{
@@ -92,8 +92,8 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 			}
 		*(newBinaryMatrixHm + m*BINARY_MATRIX_N_SIZE + j) = -1;
 	}
-//	PrintMatrixToFile(newBinaryMatrixHm,newMSize,BINARY_MATRIX_N_SIZE,fHm);
-//	fclose(fHm);	
+	PrintMatrixToFile(newBinaryMatrixHm,newMSize,BINARY_MATRIX_N_SIZE,fHm);
+	fclose(fHm);	
 
 	//initialization
 	for (i = 0;i<BINARY_MATRIX_N_SIZE;i++)

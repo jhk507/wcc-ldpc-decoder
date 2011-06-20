@@ -1,4 +1,4 @@
-function [outLLR, iterCount] = ldpcDecoder(inLLR,frameLength,minSumAppr)
+function [outLLR, iterCount, matrixHn, matrixHm] = ldpcDecoder(inLLR,frameLength,minSumAppr)
 
 if nargin < 3
     error('Not enough input arguments'); 
@@ -12,6 +12,6 @@ end
 
 tmpLLR = reshape(inLLR,1,[]);
 
-[outLLR, iterCount] = ldpcDecoderBP_mex(tmpLLR,frameLength,minSumAppr);
+[outLLR, iterCount, matrixHn, matrixHm] = ldpcDecoderBP_mex(tmpLLR,frameLength,minSumAppr);
 clear tmpLLR;
 end
