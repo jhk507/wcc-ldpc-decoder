@@ -3,13 +3,13 @@ clear
 clc
 
 % Config params
-t_modul_type    = 0;
+t_modul_type    = 1;
 frameLen        = 100;
 minSumAppr      = 1;
 infoWordLen     = 336;
-startSNRdB      = -5;
+startSNRdB      = -4;
 stepSizeSNRdB   = 1;
-endSNRdB        = 10;
+endSNRdB        = 9;
 coderON         = 1;
 rate            = 0.5;
 chanelON        = 1;
@@ -19,8 +19,7 @@ if coderON
 else
     codeWordLen = infoWordLen;
 end
-%------------------------
-
+% ------------------------
 % macroMatrixNSize = 16;
 % macroMatrixMSize = 8;
 % elemMatrixSize = 42;
@@ -49,8 +48,7 @@ end
 %     end
 %     binaryMatrix = [binaryMatrix; tempMatrix];
 % end
-
-%------------------------
+% ------------------------
 if (t_modul_type == 0)
     numBitPerSymb = 1;
 else
@@ -65,7 +63,6 @@ for ii = 1:(endSNRdB-startSNRdB)/stepSizeSNRdB
 end
 
 tic;
-
 for ii = 1:(endSNRdB-startSNRdB)/stepSizeSNRdB
  SNRdB = arrSNRdB(ii)   
  var   = 1./(2.*10.^(SNRdB/10));
@@ -92,7 +89,7 @@ for ii = 1:(endSNRdB-startSNRdB)/stepSizeSNRdB
  llr  = demapper(t_modul_type,outCons,var);
  
      if coderON
-     [data, itCount(ii)] = ldpcDecoder(llr,frameLen,minSumAppr);
+     [data, itCount(ii),matrixHn, matrixHm] = ldpcDecoder(llr,frameLen,minSumAppr);
      else
      data = llr;
      end
@@ -108,7 +105,7 @@ for ii = 1:(endSNRdB-startSNRdB)/stepSizeSNRdB
  codeBER =  (codeWordLen*frameLen - sum(dataFromDecoder == codeW))/(frameLen*codeWordLen)
  arrCodeBER(ii) = codeBER;
  codeBLER = 0;
- for m = 0:frameLen-1
+ for m = 0:1:frameLen-1
      codeBLER = codeBLER + ( (codeWordLen - sum(dataFromDecoder(m*codeWordLen + 1:codeWordLen*(m+1)) == codeW(m*codeWordLen + 1:codeWordLen*(m+1)))) > 0);
  end
  codeBLER = codeBLER/frameLen
@@ -120,7 +117,7 @@ if coderON
     clear tmp;
     infoBER =  (infoWordLen*frameLen - sum(infoWordFromDecoder == infoW))/(frameLen*infoWordLen)
     infoBLER = 0;
-    for m = 0:frameLen-1
+    for m = 0:1:frameLen-1
       infoBLER = infoBLER + ( (infoWordLen - sum(infoWordFromDecoder(m*infoWordLen + 1:infoWordLen*(m+1)) == infoW(m*infoWordLen + 1:infoWordLen*(m+1)))) > 0);
     end
     infoBLER = infoBLER/frameLen
@@ -128,9 +125,6 @@ if coderON
     arrInfoBER(ii) = infoBER;
 end
 end
-
-
-
 
 figure(1)
 semilogy(arrSNRdB,arrCodeBER,'ro-')
