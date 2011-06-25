@@ -217,6 +217,10 @@
 				RelativePath=".\ldpcMatrixH.h"
 				>
 			</File>
+			<File
+				RelativePath=".\matrixH_1_2.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
