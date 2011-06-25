@@ -1,70 +1,90 @@
 #include <mex.h>
 #include "ldpcDecoderBP.h"
-#include "ldpcMatrixH.h"
+#include "matrixH_1_2.h"
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-	//short matrixH[BINARY_MATRIX_M_SIZE][BINARY_MATRIX_N_SIZE] = BINARY_H_MATRIX;
-    short* matrixH;
-    short  macroMatrixH[MACRO_MATRIX_M_SIZE][MACRO_MATRIX_N_SIZE] = MACRO_MATRIX;
 	double* codeFrame;
-    double* infoFrame;
+    short* infoFrame;
+	int infoWordLen;
+	
+	short* matrixH;
+	short  matrixHSizeM = 0;
+	short  matrixHSizeN = 0;
+    short* macroMatrixH;
+	short  macroMatrixHSizeM = 0;
+	short  macroMatrixHSizeN = 0;
     short* matrixHn;
+    short  matrixHnSizeN = 0;
     short* matrixHm;
-	double var;
+    short  matrixHmSizeM = 0;
+	
     short minSumAppr;
     int frameLen;
+	double  codeRate;
+	int maxIterCount;
+
 	int i, j, res;
     int iterCount;
-    FILE *binMatrix = fopen("binMatrixH.txt","w");
 
-	if (nrhs < 3)
+	if (nrhs < 4)
 		 mexErrMsgTxt("Four input arguments are required");
 	if (nlhs < 1)
 		 mexErrMsgTxt("One or Two output arguments are required");
 
     frameLen = (int)(mxGetScalar(prhs[1]));
-    minSumAppr = (short)(mxGetScalar(prhs[2]));
-    
- 	matrixHm = (short *)mxCalloc(BINARY_MATRIX_N_SIZE*5,sizeof(short));
-    matrixHn = (short *)mxCalloc(BINARY_MATRIX_M_SIZE*8,sizeof(short));
-    matrixH  = (short *)mxCalloc(BINARY_MATRIX_N_SIZE*BINARY_MATRIX_M_SIZE,sizeof(short));
-    codeFrame = (double *)mxCalloc(CODE_WORD_LEN * frameLen,sizeof(double));
-    infoFrame = (double *)mxCalloc(CODE_WORD_LEN * frameLen,sizeof(double));
-	CreateBinaryMatrix(&macroMatrixH[0][0],matrixH);
+	codeRate = (double)(mxGetScalar(prhs[2]));
+	maxIterCount = (int)(mxGetScalar(prhs[3]));
+    minSumAppr = (short)(mxGetScalar(prhs[4]));
 
-	for(i = 0;i<CODE_WORD_LEN * frameLen;i++)
+	if (codeRate ==  0.5)
+	{
+		matrixH = &binaryMatrixH_1_2;
+		matrixHSizeM = binaryMatrixH_1_2_SizeM;
+		matrixHSizeN = binaryMatrixH_1_2_SizeN;
+		macroMatrixH = &macroMatrixH_1_2;
+		macroMatrixHSizeM = macroMatrixH_1_2_SizeM;
+		macroMatrixHSizeN = macroMatrixH_1_2_SizeN;
+		matrixHn = &matrixHn_1_2;
+		matrixHnSizeN = matrixHn_1_2_SizeN;
+		matrixHm = &matrixHm_1_2;
+		matrixHmSizeM = matrixHm_1_2_SizeM;
+	}
+	else
+		mexErrMsgTxt("Unknown CodeRate (supported: 1/2)");
+    
+    infoWordLen = ceil(codeRate * codeWordLen);
+    codeFrame = (double *)mxCalloc(codeWordLen * frameLen,sizeof(double));
+    infoFrame = (short	*)mxCalloc(codeWordLen * frameLen,sizeof(short));
+
+	for(i = 0;i<codeWordLen * frameLen;i++)
     {
         codeFrame[i] = (double)*(mxGetPr(prhs[0])+ i);
     }
-    
+
+	plhs[1] = mxCreateDoubleMatrix(1, frameLen, mxREAL);
+    plhs[2] = mxCreateDoubleMatrix(1, frameLen, mxREAL);    
 	for (i = 0; i<frameLen; i++)
     {
-        res = DecodeCodeWordBP(codeFrame + i*CODE_WORD_LEN,infoFrame + i*CODE_WORD_LEN,matrixH,&macroMatrixH[0][0],&iterCount,minSumAppr,matrixHn,matrixHm);
+		res = DecodeCodeWordBP(	codeFrame + i*codeWordLen, infoFrame + i*infoWordLen, matrixH, matrixHSizeM, matrixHSizeN, \
+								macroMatrixH, macroMatrixHSizeM, macroMatrixHSizeN, \
+								matrixHn, matrixHnSizeN, matrixHm, matrixHmSizeM,\
+								maxIterCount, minSumAppr, &iterCount);
         printf("%d\t",res);
+		*(mxGetPr(plhs[2]) + i) = res;
+        *(mxGetPr(plhs[1]) + i) = iterCount;
     }
     printf("\n");    
 
-	plhs[0] = mxCreateDoubleMatrix(1, CODE_WORD_LEN * frameLen, mxREAL);
-	for (i = 0; i< CODE_WORD_LEN * frameLen; i++)
-    {
-         *(mxGetPr(plhs[0]) + i) = (double)infoFrame[i];
-    }
-    plhs[1] = mxCreateDoubleMatrix(1, 1, mxREAL);
-    *(mxGetPr(plhs[1])) = iterCount;
-    plhs[2] = mxCreateDoubleMatrix(8,336,mxREAL);
-    plhs[3] = mxCreateDoubleMatrix (672,5,mxREAL);
-    for (i = 0; i< 336; i++)
-        for(j = 0; j < 8; j++)
-        *(mxGetPr(plhs[2]) + 8*i + j) = *(matrixHn + 8*i + j);
-    
-     for (i = 0; i< 5; i++)
-        for(j = 0; j < 672; j++)
-        *(mxGetPr(plhs[3]) + 672*i + j) = *(matrixHm + 672*i + j);  
-	
- 	mxFree(matrixHn);
-    mxFree(matrixHm);
-    mxFree(matrixH);
+	plhs[0] = mxCreateDoubleMatrix(1, infoWordLen*frameLen, mxREAL);
+	for (j = 0; j< frameLen; j++)
+		for (i = 0; i< infoWordLen; i++)
+		{
+		     *(mxGetPr(plhs[0]) + i + j*infoWordLen) = (double)infoFrame[i + j*infoWordLen];
+		}
+
+
+
     mxFree(codeFrame);    
     mxFree(infoFrame);
 	return;

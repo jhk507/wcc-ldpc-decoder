@@ -1,124 +1,70 @@
 #include "ldpcDecoderBP.h"
 
-void DetMaxNewMatrixDim(short* macroMatrix, int* maxM, int* maxN)
-{
-	int i,j;
-	int tmp_val;
-	*maxM = 0;
-	*maxN = 0;
-	for (i = 0; i<MACRO_MATRIX_N_SIZE; i++)
-	{	tmp_val = 0;
-		for (j = 0; j<MACRO_MATRIX_M_SIZE;j++)
-			if(*(macroMatrix + j*MACRO_MATRIX_N_SIZE + i) != -1) 
-				tmp_val++;
-		if (tmp_val > *maxM)
-			*maxM = tmp_val;
-	}
-
-	for (i = 0; i<MACRO_MATRIX_M_SIZE; i++)
-	{	tmp_val = 0;
-		for (j = 0; j<MACRO_MATRIX_N_SIZE;j++)
-			if(*(macroMatrix + i*MACRO_MATRIX_N_SIZE + j) != -1) 
-				tmp_val++;
-		if (tmp_val > *maxN)
-			*maxN = tmp_val;
-	}
-}
-
-int CheckCodeSindrom(short* codeWord, short* matrixHn, short matrixNSize)
+int CheckCodeSindrom(double* codeWord, short binMatrixSizeM, short* matrixHn, short matrixHnSizeN)
 {
 	int i,j;
 	short sind;
-	for(i = 0; i< BINARY_MATRIX_M_SIZE; i++)
+	for(i = 0; i< binMatrixSizeM; i++)
 	{
 		j = 0;
 		sind = 0;
-		while(*(matrixHn+ i*matrixNSize + j) != -1)
+		while(*(matrixHn+ i*matrixHnSizeN + j) != -1)
 		{
-			sind = (sind + (*(codeWord + *(matrixHn+ i*matrixNSize + j) ) > 0) )%2;
+			sind = (sind + (*(codeWord + *(matrixHn+ i*matrixHnSizeN + j) ) > 0) )%2;
 			j++;
 		}
 		if (sind)
-			return -1;
+			return 0;
 	}
-	return 0;	
+	return 1;	
 }
 
-int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatrixH, short* macroMatrix, int* iterCount, short minSumApprox, short* matrixHn, short* matrixHm)
+void HardDecisionCodeWord(double *llrWord, short *codeWord, int codeWordLen)
 {
-	double *lamb		= (double *)malloc(BINARY_MATRIX_N_SIZE*sizeof(double));
-	double *lambPrevIt	= (double *)malloc(BINARY_MATRIX_N_SIZE*sizeof(double));
-	double *Umn			= (double *)malloc(BINARY_MATRIX_M_SIZE*BINARY_MATRIX_N_SIZE*sizeof(double));
-	double *UmnPrevIt	= (double *)malloc(BINARY_MATRIX_M_SIZE*BINARY_MATRIX_N_SIZE*sizeof(double));
-	short *newBinaryMatrixHm = NULL;
-	short *newBinaryMatrixHn = NULL;
-	int newMSize = 0;	
-	int newNSize = 0;	
+	int i;
+	for (i = 0; i<codeWordLen; i++)
+		*(codeWord + i) = (short)(*(llrWord + i) > 0 );
+}
+
+int DecodeCodeWordBP(double *inCodeWord, short *outCodeWord, short* binaryMatrixH, int binMatrixSizeM, int binMatrixSizeN, \
+					 short* macroMatrix, int macroMatrixSizeM, int macroMatrixSizeN, \
+					 short* matrixHn, int matrixHnSizeN, short* matrixHm, int matrixHmSizeM,\
+					 int maxIterCount, short minSumApprox, int* iterCount)
+{
+	double *lamb		= (double *)malloc(binMatrixSizeN*sizeof(double));
+	double *lambPrevIt	= (double *)malloc(binMatrixSizeN*sizeof(double));
+	double *Umn			= (double *)malloc(binMatrixSizeM*binMatrixSizeN*sizeof(double));
+	double *UmnPrevIt	= (double *)malloc(binMatrixSizeM*binMatrixSizeN*sizeof(double));
 	int i,j,m,n,k,signUl,iii;
 	int	iterL, checkRes;
 	double	Ul;
-
-	DetMaxNewMatrixDim(macroMatrix,&newMSize,&newNSize);
-	newMSize++;
-	newNSize++;
-	newBinaryMatrixHm = (short *)malloc(BINARY_MATRIX_N_SIZE*newMSize*sizeof(short));
-	newBinaryMatrixHn = (short *)malloc(BINARY_MATRIX_M_SIZE*newNSize*sizeof(short));
-
-	for (i = 0; i<BINARY_MATRIX_M_SIZE;i++)
-	{
-		n = 0;
-		for(j = 0; j<BINARY_MATRIX_N_SIZE;j++)
-			if(*(binaryMatrixH + i*BINARY_MATRIX_N_SIZE + j))
-			{
-				*(newBinaryMatrixHn + i*newNSize + n) = j;
-                *(matrixHn + i*newNSize + n) = *(newBinaryMatrixHn + i*newNSize + n);
-				n++;
-			}
-		*(newBinaryMatrixHn + i*newNSize + n) = -1;
-        *(matrixHn + i*newNSize + n) = *(newBinaryMatrixHn + i*newNSize + n);
-	}
-
-	for (j = 0; j<BINARY_MATRIX_N_SIZE;j++)
-	{
-		m = 0;
-		for(i = 0; i<BINARY_MATRIX_M_SIZE;i++)
-			if(*(binaryMatrixH + i*BINARY_MATRIX_N_SIZE + j))
-			{
-				*(newBinaryMatrixHm + m*BINARY_MATRIX_N_SIZE + j) = i;
-                *(matrixHm + m*BINARY_MATRIX_N_SIZE + j) = *(newBinaryMatrixHm + m*BINARY_MATRIX_N_SIZE + j);
-				m++;                
-			}
-		*(newBinaryMatrixHm + m*BINARY_MATRIX_N_SIZE + j) = -1;
-        *(matrixHm + m*BINARY_MATRIX_N_SIZE + j) = *(newBinaryMatrixHm + m*BINARY_MATRIX_N_SIZE + j);
-	}
+	int		codeWordLen = binMatrixSizeN;
 
 	//initialization
-	for (i = 0;i<BINARY_MATRIX_N_SIZE;i++)
+	for (i = 0;i<binMatrixSizeN;i++)
 	{
  		*(lamb + i) = 0;
 		*(lambPrevIt + i) = *(inCodeWord + i);
-		for(j = 0;j<BINARY_MATRIX_M_SIZE;j++)
-			//if (*(binaryMatrixH + j*BINARY_MATRIX_N_SIZE + i))
+		for(j = 0;j<binMatrixSizeM;j++)
 			{
-				*(Umn + j*BINARY_MATRIX_N_SIZE + i) = 0;
-				*(UmnPrevIt + j*BINARY_MATRIX_N_SIZE + i) = 0;
+				*(Umn + j*binMatrixSizeN + i) = 0;
+				*(UmnPrevIt + j*binMatrixSizeN + i) = 0;
 			}
 	}
 
 	//iterate
 	iterL = 0;
-	while(iterL < L_MAX+1)
+	while(iterL < maxIterCount)
+	{ 
+	for (n = 0; n<binMatrixSizeN; n++)
 	{
-    
-	for (n = 0; n<BINARY_MATRIX_N_SIZE; n++)
-	{
-		m = *(newBinaryMatrixHm + n);
+		m = *(matrixHm + n);
 		i = 0;
 		*(lamb + n) = *(inCodeWord + n);
 
 		while(m >= 0)
 		{
-			j = *(newBinaryMatrixHn + newNSize*m);
+			j = *(matrixHn + matrixHnSizeN*m);
 			k = 0;
 
 			if (minSumApprox)
@@ -134,16 +80,16 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 					{
 						if(minSumApprox)
 						{
-							if (*(lambPrevIt + j) > 0 )
+							if ( (*(UmnPrevIt + m*binMatrixSizeN + j)- *(lambPrevIt + j) ) < 0 )
 								signUl++;
-							if(fabs(Ul) > fabs ( *(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j)*0.5 - *(lambPrevIt + j)*0.5 ) )
-								Ul = fabs ( *(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j)*0.5 - *(lambPrevIt + j)*0.5 );
+							if(fabs(Ul) > fabs ( *(UmnPrevIt + m*binMatrixSizeN + j)- *(lambPrevIt + j)) )
+								Ul = fabs ( *(UmnPrevIt + m*binMatrixSizeN + j)- *(lambPrevIt + j) );
 						}
 						else
-							Ul = Ul*tanh(*(UmnPrevIt + m*BINARY_MATRIX_N_SIZE + j)*0.5 - *(lambPrevIt + j)*0.5 );
+							Ul = Ul*tanh(*(UmnPrevIt + m*binMatrixSizeN + j)*0.5 - *(lambPrevIt + j)*0.5 );
 					}
 				k++;
-				j = *(newBinaryMatrixHn + newNSize*m + k);
+				j = *(matrixHn + matrixHnSizeN*m + k);
 			}	// while (j >= 0)
 			if (minSumApprox)
 			{
@@ -154,44 +100,34 @@ int DecodeCodeWordBP(double *inCodeWord, double *outCodeWord, short* binaryMatri
 			{
 				Ul = -2*ATANH(Ul);
 			}
-			*(Umn + m*BINARY_MATRIX_N_SIZE + n) = Ul;
+			*(Umn + m*binMatrixSizeN + n) = Ul;
 			*(lamb + n) = *(lamb + n) + Ul;
 			i++;
-			m = *(newBinaryMatrixHm + i*BINARY_MATRIX_N_SIZE + n);
+			m = *(matrixHm + i*binMatrixSizeN + n);
 		}	//while(m >= 0)
 	}
 
-	for(j = 0; j<BINARY_MATRIX_N_SIZE;j++)
+	for(j = 0; j<binMatrixSizeN;j++)
 	{
 		*(lambPrevIt + j) = *(lamb + j);
-		for (i = 0; i<BINARY_MATRIX_M_SIZE;i++)
-			if (*(binaryMatrixH + i*BINARY_MATRIX_N_SIZE + j))
-			*(UmnPrevIt + i*BINARY_MATRIX_N_SIZE + j) = *(Umn + i*BINARY_MATRIX_N_SIZE + j);
+		for (i = 0; i<binMatrixSizeM;i++)
+			if (*(binaryMatrixH + i*binMatrixSizeN + j))
+			*(UmnPrevIt + i*binMatrixSizeN + j) = *(Umn + i*binMatrixSizeN + j);
 	}
 
-	checkRes = CheckCodeSindrom(lamb,newBinaryMatrixHn,newNSize);
+	checkRes = CheckCodeSindrom(lamb,binMatrixSizeM,matrixHn,matrixHnSizeN);
 	iterL++;
-	if (checkRes == 0)
+	if (checkRes == 1)
 		break;
 	}
 	
-	for (i = 0; i<CODE_WORD_LEN; i++)
-		*(outCodeWord + i) = *(lamb + i);
 	*iterCount = iterL;
+	HardDecisionCodeWord(lamb,outCodeWord,codeWordLen);
 
 	free(lamb);
 	free(lambPrevIt);
 	free(Umn);
 	free(UmnPrevIt);
- 	free(newBinaryMatrixHm);
- 	free(newBinaryMatrixHn);
 
 	return checkRes;
-}
-
-void HardDecisionCodeWord(double *llrWord, short *codeWord)
-{
-	int i;
-	for (i = 0; i<CODE_WORD_LEN; i++)
-		*(codeWord + i) = (short)(*(llrWord + i) > 0 );
 }
