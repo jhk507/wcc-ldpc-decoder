@@ -1,4 +1,5 @@
 #include "ldpcDecoderBP.h"
+double atanh(double x);
 
 int CheckCodeSindrom(double* codeWord, short binMatrixSizeM, short* matrixHn, short matrixHnSizeN)
 {
@@ -98,7 +99,7 @@ int DecodeCodeWordBP(double *inCodeWord, short *outCodeWord, short* binaryMatrix
 			}
 			else
 			{
-				Ul = -2*ATANH(Ul);
+				Ul = -2*atanh(Ul);
 			}
 			*(Umn + m*binMatrixSizeN + n) = Ul;
 			*(lamb + n) = *(lamb + n) + Ul;
@@ -130,4 +131,18 @@ int DecodeCodeWordBP(double *inCodeWord, short *outCodeWord, short* binaryMatrix
 	free(UmnPrevIt);
 
 	return checkRes;
+}
+
+double atanh(double x)
+{
+ 	double eps;
+
+ 	eps = pow(10,-16);
+ 	
+ 	if(x>(1-eps))
+ 		return 1000;
+ 	if(x<-(1-eps))
+		return -1000;
+	
+	return 0.5*(log((1.0+x)/(1.0-x)));
 }
