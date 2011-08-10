@@ -70,11 +70,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 								macroMatrixH, macroMatrixHSizeM, macroMatrixHSizeN, \
 								matrixHn, matrixHnSizeN, matrixHm, matrixHmSizeM,\
 								maxIterCount, minSumAppr, &iterCount);
-        printf("%d\t",res);
 		*(mxGetPr(plhs[2]) + i) = res;
         *(mxGetPr(plhs[1]) + i) = iterCount;
     }
-    printf("\n");    
 
 	plhs[0] = mxCreateDoubleMatrix(1, infoWordLen*frameLen, mxREAL);
 	for (j = 0; j< frameLen; j++)

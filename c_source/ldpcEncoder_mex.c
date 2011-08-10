@@ -13,6 +13,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     int frameLen;
 	double codeRate;
 	int infoWordLen;
+    int res;
     
 	if (nrhs != 3)
 		 mexErrMsgTxt("Two input arguments are required: InfoWord, FrameLen, CodeRate");
@@ -42,9 +43,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      for(i = 0; i<frameLen;i++)
      {
              EncodeInfoWord(infoFrame + i*infoWordLen,codeFrame + i*codeWordLen, matrixH, codeWordLen, codeRate);	
-             printf("%d\t",CheckCodeWord(codeFrame + i*codeWordLen, matrixH, binaryMatrixH_1_2_SizeM, binaryMatrixH_1_2_SizeN));
+             //res = CheckCodeWord(codeFrame + i*codeWordLen, matrixH, binaryMatrixH_1_2_SizeM, binaryMatrixH_1_2_SizeN);
      }
-    printf("\n");
      
     plhs[0] = mxCreateDoubleMatrix(1, codeWordLen * frameLen, mxREAL);
     for (i = 0; i< codeWordLen * frameLen; i++)
